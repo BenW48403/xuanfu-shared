@@ -1,0 +1,17 @@
+# Secrets
+*.key
+.fal_key
+openclaw.json
+
+# Large assets
+art/
+audio/
+
+# Dependencies
+node_modules/
+
+# Cocos Creator build artifacts
+library/
+temp/
+local/
+build/
