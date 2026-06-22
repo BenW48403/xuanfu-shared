@@ -3,9 +3,9 @@
 .fal_key
 openclaw.json
 
-# Large assets
-art/
-audio/
+# Large assets — track finals, ignore drafts
+art/**/_wip/
+audio/**/_wip/
 
 # Dependencies
 node_modules/

@@ -29,7 +29,8 @@ if [ -z "$FAL_KEY" ]; then
     die "Key file is empty: $FAL_KEY_FILE"
 fi
 
-mkdir -p "$ART_DIR"
+ART_SUBDIR=$(dirname "$OUTFILE")
+mkdir -p "$ART_DIR/$ART_SUBDIR"
 OUTPATH="$ART_DIR/$OUTFILE"
 
 # --- Model-specific settings ---
