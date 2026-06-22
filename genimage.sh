@@ -73,14 +73,28 @@ esac
 echo ">>> Calling fal.ai ${MODEL_LABEL} ..."
 echo "    prompt: ${PROMPT:0:80}..."
 
-# Call fal.ai (longer timeout for GPT Image 2 which is slower)
-TIMEOUT_SEC=300
-RESP=$(curl -s --max-time "$TIMEOUT_SEC" -w "\n%{http_code}" \
-    -X POST "$FAL_ENDPOINT" \
-    -H "Authorization: Key ${FAL_KEY}" \
-    -H "Content-Type: application/json" \
-    -d "$BODY" 2>&1) || die "curl request failed (timeout after ${TIMEOUT_SEC}s?)"
+# --- Retry wrapper for fal.ai submit ---
+call_fal() {
+    local attempt=0 max_attempts=2
+    local timeout_s=240
+    while [ "$attempt" -lt "$max_attempts" ]; do
+        attempt=$((attempt + 1))
+        echo "    [attempt $attempt/$max_attempts] POST ${FAL_ENDPOINT}"
+        RESP=$(curl -s --max-time "$timeout_s" -w "\n%{http_code}" \
+            -X POST "$FAL_ENDPOINT" \
+            -H "Authorization: Key ${FAL_KEY}" \
+            -H "Content-Type: application/json" \
+            -d "$BODY" 2>&1) && break
+        echo "    curl failed (timeout after ${timeout_s}s or connection error)"
+        if [ "$attempt" -lt "$max_attempts" ]; then
+            echo "    retrying in 5s..."
+            sleep 5
+        fi
+    done
+    echo "$RESP"
+}
 
+RESP=$(call_fal)
 # Split status code from body
 HTTP_CODE=$(echo "$RESP" | tail -1)
 BODY_TEXT=$(echo "$RESP" | sed '$d')
@@ -173,13 +187,22 @@ fi
 
 echo "    image URL: $IMAGE_URL"
 
-# Download
+# Download with retry
 echo ">>> Downloading to $OUTPATH ..."
-curl -s -o "$OUTPATH" "$IMAGE_URL" || die "failed to download image from $IMAGE_URL"
-
-# Verify
-if [ ! -f "$OUTPATH" ] || [ ! -s "$OUTPATH" ]; then
-    die "output file is missing or empty: $OUTPATH"
+DL_OK=0
+for i in 1 2; do
+    echo "    [download attempt $i/2]"
+    if curl -s --max-time 120 -o "$OUTPATH" "$IMAGE_URL" 2>/dev/null; then
+        if [ -f "$OUTPATH" ] && [ -s "$OUTPATH" ]; then
+            DL_OK=1
+            break
+        fi
+    fi
+    echo "    download failed, retrying in 3s..."
+    sleep 3
+done
+if [ "$DL_OK" -ne 1 ]; then
+    die "failed to download image from $IMAGE_URL (2 attempts)"
 fi
 
 SIZE=$(stat -c%s "$OUTPATH" 2>/dev/null || stat -f%z "$OUTPATH" 2>/dev/null || echo "unknown")
