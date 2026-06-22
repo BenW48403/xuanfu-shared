@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# genimage.sh — Generate an image via fal.ai
-# Usage: genimage.sh "<prompt>" "<output_filename.png>" [flux|gpt]
-#   flux (default): fal-ai/flux/schnell (fast, cheap)
-#   gpt:            openai/gpt-image-2 (high quality, good typography)
+# genimage.sh — Generate an image via fal.ai, enforce _wip/_vN naming
+# Usage: genimage.sh "<prompt>" <chapter> <base_name> [version] [model]
+#   chapter:   "01", "02" etc
+#   base_name: "bg_ch01_security" (no ext, no _vN)
+#   version:   optional integer; auto-increments if omitted
+#   model:     gpt (default) | flux
+# Output:     art/ch<chapter>/_wip/<base>_v<version>.png
 
 FAL_KEY_FILE="$HOME/.fal_key"
 ART_DIR="$HOME/xuanfu-shared/art"
@@ -12,13 +15,51 @@ WIN_DIR="/mnt/c/Users/Administrator/Desktop/xuanfu/Demo/M1"
 
 die() { echo "ERROR: $*" >&2; exit 1; }
 
-if [ $# -lt 2 ] || [ $# -gt 3 ]; then
-    die "Usage: genimage.sh \"<prompt>\" \"<output_filename.png>\" [flux|gpt]"
+if [ $# -lt 3 ] || [ $# -gt 5 ]; then
+    die "Usage: genimage.sh \"<prompt>\" <chapter> <base_name> [version] [model]"
 fi
 
 PROMPT="$1"
-OUTFILE="$2"
-MODEL="${3:-flux}"
+CHAPTER="$2"
+BASE="$3"
+VERSION="${4:-}"
+MODEL="${5:-gpt}"
+
+# Validate chapter (NN)
+if ! [[ "$CHAPTER" =~ ^[0-9]{2}$ ]]; then
+    die "chapter must be two digits (e.g. 01, 02), got: $CHAPTER"
+fi
+
+# Validate base_name (no extension)
+if [[ "$BASE" =~ \. ]]; then
+    die "base_name must NOT include extension, got: $BASE"
+fi
+
+# Auto-increment version if not provided
+if [ -z "$VERSION" ]; then
+    WIP_DIR="$ART_DIR/ch$CHAPTER/_wip"
+    mkdir -p "$WIP_DIR"
+    HIGHEST=$(find "$WIP_DIR" -maxdepth 1 -name "${BASE}_v*.png" -type f 2>/dev/null | \
+        sed "s/.*_v//;s/\.png//" | sort -n | tail -1)
+    if [ -z "$HIGHEST" ]; then
+        VERSION=1
+    else
+        VERSION=$((HIGHEST + 1))
+    fi
+    echo ">>> Auto version: v${VERSION} (highest existing: ${HIGHEST:-none})"
+fi
+
+if ! [[ "$VERSION" =~ ^[0-9]+$ ]]; then
+    die "version must be an integer, got: $VERSION"
+fi
+
+# Construct enforced _wip path
+OUTFILE="ch${CHAPTER}/_wip/${BASE}_v${VERSION}.png"
+OUTPATH="$ART_DIR/$OUTFILE"
+ART_SUBDIR=$(dirname "$OUTFILE")
+mkdir -p "$ART_DIR/$ART_SUBDIR"
+
+echo ">>> Output: art/$OUTFILE"
 
 # Read and trim the key
 if [ ! -f "$FAL_KEY_FILE" ]; then
@@ -28,10 +69,6 @@ FAL_KEY="$(sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' "$FAL_KEY_FILE")"
 if [ -z "$FAL_KEY" ]; then
     die "Key file is empty: $FAL_KEY_FILE"
 fi
-
-ART_SUBDIR=$(dirname "$OUTFILE")
-mkdir -p "$ART_DIR/$ART_SUBDIR"
-OUTPATH="$ART_DIR/$OUTFILE"
 
 # --- Model-specific settings ---
 case "$MODEL" in
@@ -66,7 +103,7 @@ print(json.dumps(body, ensure_ascii=False))
 ' "$PROMPT")
         ;;
     *)
-        die "Unknown model: $MODEL (use flux or gpt)"
+        die "Unknown model: $MODEL (use gpt or flux)"
         ;;
 esac
 
@@ -95,7 +132,6 @@ call_fal() {
 }
 
 RESP=$(call_fal)
-# Split status code from body
 HTTP_CODE=$(echo "$RESP" | tail -1)
 BODY_TEXT=$(echo "$RESP" | sed '$d')
 
@@ -114,7 +150,6 @@ print("yes" if "images" in data else "no")
 ' <<< "$BODY_TEXT")
 
 if [ "$HAS_IMAGES" = "no" ]; then
-    # Queue mode — get status_url and poll
     STATUS_URL=$(python3 -c '
 import json, sys
 data = json.loads(sys.stdin.read())
@@ -168,7 +203,7 @@ print(data.get("status", "unknown"))
     fi
 fi
 
-# Extract image URL (same structure for both models: images[0].url)
+# Extract image URL
 IMAGE_URL=$(python3 -c '
 import json, sys
 try:
@@ -218,3 +253,4 @@ else
 fi
 
 echo "    Image URL: $IMAGE_URL"
+echo ">>> PATH: $OUTPATH"
