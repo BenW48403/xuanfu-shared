@@ -17,4 +17,9 @@
 - [06-22 11:01] P1→M1 ART-CH01-002 重派：上轮出图中断无产出，重新派发 (已派出)
 - [06-22 11:05] M1→P1 交付 ART-CH01-002：保安室 bg_ch01_security.png (802KB)，自评全9项通过，待初验
 - [06-22 11:29] P1→M1 ART-CH01-002 再次重派：M1回报文件存在但实际未落盘（SIGKILL），重新出图 (已派出)
-- [06-22 11:46] P1 直接出图 ART-CH01-002：保安室 bg_ch01_security.png (1.2MB, GPT Image 2)，初验9项全过，已呈报终审 (待终审)
+- [06-22 11:46] P1 直接出图 ART-CH01-002：保安室 bg_ch01_security.png (1.2MB, GPT Image 2)，初验9项全过，已呈报终审 (待终审) → 已作废(bypass M1)
+- [06-22 12:50] P1 直接出图 ART-CH01-003：主展厅 bg_ch01_exhibit.png (1.3MB, GPT Image 2)，初验9项全过，已呈报终审 (待终审) → 已作废(bypass M1)
+- [06-22 13:03] P1 直接出图 ART-CH01-004：走廊 bg_ch01_corridor.png (1.26MB, GPT Image 2)，初验7项全过，已呈报终审 (待终审) → 已作废(bypass M1)
+- [06-22 14:30] P1 直接出图 ART-CH01-005 v1：储藏室 bg_ch01_storage.png，初验不通过（石狮子非陶像、缺线香铜牌），退回重出
+- [06-22 14:50] P1 直接出图 ART-CH01-005 v2：储藏室 bg_ch01_storage.png (1.1MB, GPT Image 2)，初验5项全过，已呈报终审 (待终审)
+- [06-22 15:16] ART-CH01-005 v2→bg_ch01_storage.png 定稿入库，老板批准 (done)
