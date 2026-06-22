@@ -186,9 +186,10 @@ SIZE=$(stat -c%s "$OUTPATH" 2>/dev/null || stat -f%z "$OUTPATH" 2>/dev/null || e
 echo ">>> Done. Art:     $OUTPATH (${SIZE} bytes)"
 
 # Mirror to Windows-accessible directory (best-effort)
-if mkdir -p "$WIN_DIR" && cp "$OUTPATH" "$WIN_DIR/$OUTFILE" 2>/dev/null; then
-    echo "    Mirror:  $WIN_DIR/$OUTFILE"
-    echo "    Windows: C:\\Users\\Administrator\\Desktop\\xuanfu\\Demo\\M1\\$OUTFILE"
+OUTBASE=$(basename "$OUTFILE")
+if mkdir -p "$WIN_DIR" && cp "$OUTPATH" "$WIN_DIR/$OUTBASE" 2>/dev/null; then
+    echo "    Mirror:  $WIN_DIR/$OUTBASE"
+    echo "    Windows: C:\\Users\\Administrator\\Desktop\\xuanfu\\Demo\\M1\\$OUTBASE"
 else
     echo "    [WARN] Could not mirror to $WIN_DIR (drive not mounted?)"
 fi
