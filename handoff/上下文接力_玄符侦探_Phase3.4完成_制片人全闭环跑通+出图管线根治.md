@@ -22,6 +22,8 @@
 
 OpenClaw 的 session 持久化到磁盘（`~/.openclaw/agents/<id>/sessions/`），context 在**首次编译时快照、之后永不刷新**；只有**新建 sessionId** 才会重新编译 SOUL。所以改完 SOUL/TOOLS 后**光重启网关无效**——活 agent 仍跑旧 SOUL。
 
+⚠️ reload 机制有重要更正（须归档旧 .jsonl），以《Phase3.4增补》为准。
+
 本阶段绕最多圈的根就在此：detached、出图铁律、`_wip` 命名全改对了却不生效，皆因 P1/M1 的活 session（11:01–11:02 创建）从未重编译。
 
 **正确做法（改完任何 persona 必走）：**
