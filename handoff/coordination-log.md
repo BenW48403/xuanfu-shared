@@ -30,3 +30,5 @@
 - [06-22 18:12] P1→M3 AUD-CH01-003 派活：链条拖拽声 sfx_ch01_chain.wav，WAV 44100Hz/16bit，Freesound CC0/CC-BY预览档 (已派出)
 - [06-22 18:14] M3→P1 AUD-CH01-003 交付 sfx_ch01_chain_v1.wav (129KB, WAV 44100Hz/16bit mono, 1.50s, CC-BY 4.0)，初验5项全过，已呈报终审 (待终审)
 - [06-22 18:19] AUD-CH01-003 v1→sfx_ch01_chain.wav 定稿入库，老板批准 (done)
+- [06-22 18:28] P1→M3 AUD-CH01-004 派活：第一章主背景乐 bgm_ch01_main.mp3，MP3 128kbps 90-120s 无缝循环，中式器乐阴森氛围，Freesound CC0/CC-BY 分层合成 (已派出)
+- [06-22 18:40] M3→P1 AUD-CH01-004 交付 bgm_ch01_main_v1.mp3 (1.5MB, MP3 128kbps stereo, 100s, CC-BY 4.0×3)，初验6项全过，已呈报终审 (待终审)
