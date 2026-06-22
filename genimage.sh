@@ -116,15 +116,15 @@ call_fal() {
     local timeout_s=240
     while [ "$attempt" -lt "$max_attempts" ]; do
         attempt=$((attempt + 1))
-        echo "    [attempt $attempt/$max_attempts] POST ${FAL_ENDPOINT}"
+        echo "    [attempt $attempt/$max_attempts] POST ${FAL_ENDPOINT}" >&2
         RESP=$(curl -s --max-time "$timeout_s" -w "\n%{http_code}" \
             -X POST "$FAL_ENDPOINT" \
             -H "Authorization: Key ${FAL_KEY}" \
             -H "Content-Type: application/json" \
-            -d "$BODY" 2>&1) && break
-        echo "    curl failed (timeout after ${timeout_s}s or connection error)"
+            -d "$BODY" 2>/dev/null) && break
+        echo "    curl failed (timeout after ${timeout_s}s or connection error)" >&2
         if [ "$attempt" -lt "$max_attempts" ]; then
-            echo "    retrying in 5s..."
+            echo "    retrying in 5s..." >&2
             sleep 5
         fi
     done
